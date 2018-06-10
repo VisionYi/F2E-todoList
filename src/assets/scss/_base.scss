@@ -1,3 +1,166 @@
 /**
  * elements & structure (layout) 單一元素或結構外框之類的，專案變大時，以資料夾分出多個檔案
  */
+
+.container {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding-left: 15px;
+  padding-right: 15px;
+
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+.input {
+  background-color: #fff;
+  border: 1px solid $color-line;
+  border-radius: 0.31rem;
+  min-width: 0;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.125em rgba(0,125,255,.25);
+    border-color: $color-primary;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  font-size: inherit;
+}
+
+.checkbox {
+  position: relative;
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  input[type="checkbox"] {
+    display: none;
+
+    & + label:before {
+      @include font-awesome-icon('\f0c8');
+      color: #fff;
+    }
+
+    &:checked + label:before {
+      content: '\f14a';
+      color: $color-primary;
+      background-color: #fff;
+    }
+  }
+}
+
+.card {
+  display: flex;
+  padding: $spacing-m $spacing-l;
+  border-radius: 0.31rem;
+  background-color: $color-bg-light;
+
+  $this: &;
+
+  &--spacial {
+    background-color: $color-spacial;
+  }
+
+  &:hover {
+    box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.1);
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    height: $line-height-l;
+    margin-right: $spacing;
+
+    .checkbox {
+      height: 1.5rem;
+      width: 1.5rem;
+      font-size: 1.5rem;
+    }
+  }
+
+  &__content {
+
+    &--completed {
+      #{$this}__title {
+        margin-bottom: 0;
+        text-decoration: line-through;
+        color: #9B9B9B;
+      }
+      #{$this}__prompt {
+        display: none;
+      }
+    }
+  }
+
+  &__title {
+    margin-bottom: $spacing;
+    font-size: $font-size-l;
+    line-height: $line-height-l;
+  }
+
+  &__prompt {
+    display: flex;
+    align-items: center;
+    font-size: $font-size;
+    line-height: $line-height;
+    color: $color-text-light;
+    margin-bottom: -$spacing-s;
+
+    &__item {
+      &:not(:last-child) {
+        margin-right: $spacing;
+      }
+
+      &--date {
+        display: flex;
+        align-items: flex-start;
+
+        .icon {
+          margin-right: $spacing-s;
+        }
+      }
+    }
+  }
+
+  &__end {
+    display: flex;
+    align-items: center;
+    font-size: $font-size-l;
+    height: $line-height-l;
+    margin-left: auto;
+  }
+
+  &__favorite {
+    display: block;
+    cursor: pointer;
+
+    &.is-active {
+      color: $color-warning;
+    }
+  }
+  &__edit {
+    display: block;
+    cursor: pointer;
+
+    &.is-active {
+      color: $color-primary;
+    }
+  }
+}
