@@ -39,3 +39,13 @@
 .d-n {
   display: none !important;
 }
+
+@each $name, $color in $color-map {
+  .#{$name} {
+    background-color: $color !important;
+    border-color: $color !important;
+  }
+  .#{$name}--text {
+    color: $color !important;
+  }
+}

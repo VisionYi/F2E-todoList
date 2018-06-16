@@ -9,7 +9,6 @@ $line-height-l: 1.75rem; // 28px
 $color-text: #000;
 $color-text-light: #757575;
 $color-text-lighter: #C8C8C8;
-$color-text-reverse: #fff;
 
 $color-primary: #4A90E2;
 $color-secondary: #00408B;
@@ -19,9 +18,17 @@ $color-spacial: #FFF2DC;
 
 $color-bg: #E1E1E1;
 $color-bg-light: #F2F2F2;
-$color-bg-cover: rgba(255, 255, 255, 0.1);
+$color-bg-dark: #C8C8C8;
 
 $color-line: #C8C8C8;
+
+$color-map: (
+  'primary': $color-primary,
+  'secondary': $color-secondary,
+  'error': $color-error,
+  'warning': $color-warning,
+  'spacial': $color-spacial,
+);
 
 $spacing: 1rem; // 16px
 $spacing-s: 0.5rem; // 8px

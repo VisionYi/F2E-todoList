@@ -24,8 +24,8 @@ export default {
   &__container {
     display: flex;
     align-items: center;
-    justify-content: center;
     height: 100%;
+    width: 100%;
   }
 
   &__tabs {
@@ -36,7 +36,7 @@ export default {
     width: 100%;
 
     &__item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 10rem;
@@ -47,13 +47,13 @@ export default {
       cursor: pointer;
 
       &.is-active {
-        color: $color-text-reverse;
+        color: #fff;
         border-bottom: 0.3rem solid $color-secondary;
         cursor: initial;
       }
 
       &:hover {
-        background-color: $color-bg-cover;
+        background-color: rgba($color: #fff, $alpha: 0.1);;
       }
     }
   }
