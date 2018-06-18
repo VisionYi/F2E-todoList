@@ -9,7 +9,7 @@
   padding-left: 15px;
   padding-right: 15px;
 
-  &:after {
+  &::after {
     content: '';
     display: table;
     clear: both;
@@ -77,23 +77,23 @@
       background-color: transparent;
     }
 
-    &:before {
+    &::before {
       content: "";
       display: block;
-      border-radius: inherit;
-      color: inherit;
-      opacity: 0;
       position: absolute;
-      background-color: currentColor;
       left: -0.3rem;
       top: -0.3rem;
       height: calc(100% + 0.6rem);
       width: calc(100% + 0.6rem);
+      border-radius: inherit;
+      color: inherit;
+      background-color: currentColor;
+      opacity: 0;
       transition: .3s cubic-bezier(.25,.8,.5,1);
     }
 
-    &:focus:before,
-    &:hover:before {
+    &:focus::before,
+    &:hover::before {
       opacity: 0.1;
     }
   }
@@ -106,29 +106,30 @@
     display: inline-flex;
     align-items: center;
     cursor: pointer;
-
-    &:before {
-      margin-right: $spacing;
-    }
-
-    &:empty:before {
-      margin-right: 0;
-    }
   }
 
   input[type="checkbox"] {
     display: none;
 
-    & + label:before {
+    & + label::before {
       @include font-awesome-icon('\f0c8');
       color: #fff;
+      margin-right: $spacing;
     }
 
-    &:checked + label:before {
+    & + label:empty::before {
+      margin-right: 0;
+    }
+
+    &:checked + label::before {
       content: '\f14a';
       color: $color-primary;
       background-color: #fff;
       border-radius: 0.1em;
+    }
+
+    & + label:hover::before {
+      box-shadow: 0 0 1rem rgba($color: #000, $alpha: 0.1);
     }
   }
 }
@@ -137,26 +138,20 @@
   display: flex;
   position: relative;
 
-  $this: &;
-
-  &--name-left {
-    #{$this}__name {
-      order: -1;
-      margin-right: $spacing-m;
-    }
-  }
-  &--name-right {
-    #{$this}__name {
-      order: 1;
-      margin-left: $spacing-m;
-    }
-  }
-
   &__name {
     line-height: 2em;
 
     &:empty {
       display: none;
+    }
+
+    &--left {
+      order: -1;
+      margin-right: $spacing-m;
+    }
+    &--right {
+      order: 1;
+      margin-left: $spacing-m;
     }
   }
 
@@ -187,31 +182,16 @@
   $this: &;
 
   &:hover {
-    box-shadow: 0 0.25rem 0.4rem rgba(0, 0, 0, 0.15);
-  }
-
-  &--spacial {
-    #{$this}__header {
-      background-color: $color-spacial;
-    }
+    box-shadow: 0 0.25rem 0.4rem rgba(0, 0, 0, 0.2);
   }
 
   &--expanded {
-    box-shadow: 0 0.25rem 0.4rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.25rem 0.4rem rgba(0, 0, 0, 0.2);
 
     #{$this}__header {
       border-bottom: 2px solid $color-text-lighter;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-    }
-    #{$this}__prompt {
-      display: none;
-    }
-    #{$this}__title {
-      margin-bottom: 0;
-    }
-    #{$this}__expansion {
-      display: block;
     }
   }
 
@@ -232,32 +212,48 @@
     display: none;
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.is-expanded {
+      display: block;
+    }
   }
 
   &__content {
-
-    &--completed {
-      #{$this}__title {
-        margin-bottom: 0;
-        text-decoration: line-through;
-        color: #9B9B9B;
-      }
-      #{$this}__prompt {
-        display: none;
-      }
+    &--edited {
+      flex: 1 1 auto;
+      margin: 0 $spacing-m 0 ($spacing-xl - $spacing-l);
     }
   }
 
   &__title {
-    margin-bottom: $spacing;
     font-size: $font-size-l;
     line-height: $line-height-l;
+
+    &--completed {
+      margin-bottom: 0;
+      text-decoration: line-through;
+      color: #9B9B9B;
+    }
+  }
+
+  &__title-input {
+    font-size: $font-size-l;
+    line-height: $line-height-l;
+    background-color: rgba($color: #fff, $alpha: 0.6);
+    padding: 0 2px;
+    width: 100%;
+
+    &:focus {
+      background-color: #fff;
+    }
   }
 
   &__prompt {
     font-size: $font-size;
     line-height: $line-height;
     color: $color-text-light;
+    margin-top: $spacing;
     margin-bottom: -$spacing-s;
 
     &__item {
@@ -271,9 +267,19 @@
   }
 
   &__end {
-    font-size: $font-size-l;
-    line-height: $line-height-l;
+    display: flex;
     margin-left: auto;
+
+    .btn {
+      font-size: $font-size-l;
+      line-height: $line-height-l;
+      height: $line-height-l;
+      width: $line-height-l;
+
+      &:not(:last-child) {
+        margin-right: $spacing-m;
+      }
+    }
   }
 }
 
@@ -317,16 +323,17 @@
   &--expanded {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-
-    & + #{$this}__expansion {
-      display: block;
-    }
   }
 
   &__expansion {
     display: none;
     border-bottom-left-radius: 0.31rem;
     border-bottom-right-radius: 0.31rem;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.is-expanded {
+      display: block;
+    }
 
     .penal {
       border: 2px solid $color-line;

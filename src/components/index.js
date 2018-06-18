@@ -1,7 +1,7 @@
 import Navbar from './Navbar.vue';
-import ExpansionPenal from './ExpansionPenal.vue';
+import Penal from './Penal.vue';
 
 export default {
   Navbar,
-  ExpansionPenal,
+  Penal,
 };
