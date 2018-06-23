@@ -8,6 +8,9 @@ export function isEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
 
+export function deepCopy(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 /**
  * - 可擴展或可折疊，前提是指定元素的 transition 需要事先設定好，

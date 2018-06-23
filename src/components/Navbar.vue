@@ -2,9 +2,15 @@
   <header class="navbar">
     <div class="container navbar__container">
       <ul class="navbar__tabs">
-        <li class="navbar__tabs__item is-active">My Tasks</li>
-        <li class="navbar__tabs__item">In Progress</li>
-        <li class="navbar__tabs__item">Completed</li>
+        <li
+          v-for="tab in navbarTabs"
+          :key="tab.id"
+          class="navbar__tabs__item"
+          :class="{ 'is-active': _tabId === tab.id }"
+          @click="selectTab(tab)"
+        >
+          {{ tab.text }}
+        </li>
       </ul>
     </div>
   </header>
@@ -13,6 +19,48 @@
 <script>
 export default {
   name: 'Navbar',
+  props: {
+    tabId: [String, Number, null],
+  },
+  model: {
+    event: 'changeTab',
+    prop: 'tabId',
+  },
+
+  data() {
+    return {
+      navbarTabs: [
+        {
+          id: 'all',
+          text: 'My Tasks',
+        },
+        {
+          id: 'progress',
+          text: 'In Progress',
+        },
+        {
+          id: 'done',
+          text: 'Completed',
+        },
+      ],
+    };
+  },
+  computed: {
+    _tabId: {
+      get() {
+        return this.tabId;
+      },
+      set(value) {
+        this.$emit('changeTab', value);
+      },
+    },
+  },
+
+  methods: {
+    selectTab(tab) {
+      this._tabId = tab.id;
+    },
+  },
 };
 </script>
 
@@ -20,6 +68,10 @@ export default {
 .navbar {
   height: 4.75rem;
   background-color: $color-primary;
+
+  @media (max-width: 540px) {
+    height: 3.5rem;
+  }
 
   &__container {
     display: flex;
@@ -43,17 +95,25 @@ export default {
       height: 100%;
       color: $color-secondary;
       font-size: $font-size-l;
+      line-height: $line-height-l;
       font-weight: bold;
+      text-align: center;
       cursor: pointer;
+      border-bottom: 0.3rem solid transparent;
 
       &.is-active {
+        border-color: $color-secondary;
         color: #fff;
-        border-bottom: 0.3rem solid $color-secondary;
         cursor: initial;
       }
 
       &:hover {
         background-color: rgba($color: #fff, $alpha: 0.1);;
+      }
+
+      @media (max-width: 540px) {
+        font-size: $font-size-m;
+        line-height: $line-height-m;
       }
     }
   }

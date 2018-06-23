@@ -8,38 +8,19 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     todos: [],
-    sort: {
-      favorite: [
-        '2',
-      ],
-      normal: [
-        '3',
-        '1',
-      ],
-    },
+    addPenalStatus: 'closed', // 狀態有 'add' & 'closed'
   },
 
   getters: {
-    todos: state => state.todos,
+    // 使用拷貝的方式，可防止物件或陣列指向參考而變動自身
+    todos: state => [...state.todos],
     progress: state => state.todos.filter(item => !item.completed),
     done: state => state.todos.filter(item => item.completed),
-  },
-
-  mutations: {
-    setTodos(state, list) {
-      state.todos = list;
-    },
-    pushTodo(state, item) {
-      state.todos.push(item);
-    },
-    updateTodo(state, { id, ...data }) {
-      const index = state.todos.findIndex(item => item.id === id);
-      state.todos.splice(index, 1, { ...state.todos[index], ...data });
-    },
-    deleteTodo(state, id) {
-      const index = state.todos.findIndex(item => item.id === id);
-      state.todos.splice(index, 1);
-    },
+    progressCount: (state, getters) => getters.progress.length,
+    doneCount: (state, getters) => getters.done.length,
+    addPenalStatus: state => state.addPenalStatus,
+    getTodoById: state => id => state.todos.find(item => item.id === id),
+    getStatusById: (state, getters) => id => getters.getTodoById(id).status,
   },
 
   actions: {
@@ -47,16 +28,16 @@ export default new Vuex.Store({
       let data = [
         {
           id: '1',
-          message: '新增第一筆資料',
+          message: '新增第一筆 Task',
           completed: false,
           favorite: true,
-          deadline: 1528279999,
+          deadline: 1528270000,
           fileName: 'ok.png',
           comment: '這有內容',
         },
         {
           id: '2',
-          message: 'Test 2',
+          message: '這是完成的 Task',
           completed: true,
           favorite: false,
           deadline: null,
@@ -65,16 +46,7 @@ export default new Vuex.Store({
         },
         {
           id: '3',
-          message: 'Test 3',
-          completed: false,
-          favorite: false,
-          deadline: 1528277505,
-          fileName: 'ok.png',
-          comment: null,
-        },
-        {
-          id: '4',
-          message: 'Test 4',
+          message: 'Try to add a Task!',
           completed: false,
           favorite: true,
           deadline: null,
@@ -90,7 +62,7 @@ export default new Vuex.Store({
           moment.unix(item.deadline).get('hour') &&
           moment.unix(item.deadline).get('minutes') ? moment.unix(item.deadline).format('HH:mm') : null;
         return {
-          ...item, date, time,
+          ...item, date, time, status: 'closed',
         };
       });
 
@@ -107,9 +79,44 @@ export default new Vuex.Store({
         time: data.time || null,
         fileName: data.fileName || null,
         comment: data.comment || null,
+        status: 'closed',
       };
 
-      commit('pushTodo', todo);
+      commit('unshiftTodo', todo);
+    },
+
+    updateTodo({ commit }, { id, ...data }) {
+      commit('updateTodo', { id, ...data });
+    },
+    updateStatus({ commit }, [id, status]) {
+      // 狀態有 'display'、'edited'、'closed'
+      commit('updateTodo', { id, status });
+    },
+    deleteTodo({ commit }, id) {
+      commit('deleteTodo', id);
+    },
+  },
+
+  mutations: {
+    setTodos(state, list) {
+      state.todos = list;
+    },
+    pushTodo(state, item) {
+      state.todos.push(item);
+    },
+    unshiftTodo(state, item) {
+      state.todos.unshift(item);
+    },
+    updateTodo(state, { id, ...data }) {
+      const index = state.todos.findIndex(item => item.id === id);
+      state.todos.splice(index, 1, { ...state.todos[index], ...data });
+    },
+    deleteTodo(state, id) {
+      const index = state.todos.findIndex(item => item.id === id);
+      state.todos.splice(index, 1);
+    },
+    setAddPenalStatus(state, status) {
+      state.addPenalStatus = status;
     },
   },
 });

@@ -1,8 +1,12 @@
 <template>
   <div id="app">
-    <navbar></navbar>
+    <navbar v-model="typeOfTask"></navbar>
     <div class="container main">
-      <div class="add-task" :class="{'add-task--expanded': addPenalStatus === 'add'}">
+      <div
+        class="add-task"
+        :class="{'add-task--expanded': addPenalStatus === 'add'}"
+        v-if="typeOfTask !== 'done'"
+      >
         <span class="add-task__add"><i class="fas fa-plus icon"></i></span>
         <input
           type="text"
@@ -14,43 +18,67 @@
         <button
           class="btn btn--icon add-task__more"
           :class="{'primary--text': addPenalStatus === 'add'}"
-          @click="toggleOptions()"
+          @click="switchAddPenal(addPenalStatus)"
+          title="More Options"
         >
           <i class="fas fa-ellipsis-v icon"></i>
         </button>
       </div>
-      <div class="add-task__expansion" id="more-options">
+      <div
+        class="add-task__expansion"
+        v-slide-toggle="addPenalStatus"
+        v-if="typeOfTask !== 'done'"
+      >
         <penal
           :message="message"
-          :status="addPenalStatus"
-          @save="penalSave()"
-          @cancel="penalCancel()"
+          @save="message = ''"
         ></penal>
+      </div>
+      <div class="main__options">
+        <div class="checkbox mr-b" role="checkbox">
+          <input type="checkbox" id="sort" v-model="isSortBy">
+          <label for="sort">Sort By Favorite</label>
+        </div>
+        <button
+          class="btn btn--primary mr-b"
+          v-if="typeOfTask !== 'all'"
+          @click="changeAllCheck(mainTasks)"
+          v-empty-add:disabled="mainTasks"
+        >
+          {{ typeOfTask === 'progress' ? 'Check' : 'Uncheck' }} All
+        </button>
+        <button
+          class="btn btn--danger"
+          @click="deleteAll(mainTasks)"
+          v-empty-add:disabled="mainTasks"
+        >
+          Delete All
+        </button>
       </div>
       <div class="main__tasks mb-s">
         <div
-          v-for="item in todos"
+          v-for="item in mainTasks"
           :key="item.id"
           class="card"
-          :class="cardClass(item)"
+          :class="{'card--expanded': item.status === 'display' || item.status === 'edited'}"
         >
           <div class="card__header" :class="{'spacial': item.favorite}">
-            <div class="checkbox" role="checkbox" v-if="taskPenalStatus(item) !== 'edit'">
+            <div class="checkbox" role="checkbox" v-if="item.status !== 'edited'">
               <input
                 type="checkbox"
                 :id="`checkbox-${item.id}`"
                 :checked="item.completed"
-                @change="changeCheckStatus(item)"
+                @change="switchCheckStatus(item)"
               >
               <label :for="`checkbox-${item.id}`"></label>
             </div>
             <div class="card__content"
-              :class="{'card__content--edited': taskPenalStatus(item) === 'edit'}"
+              :class="{'card__content--edited': item.status === 'edited'}"
             >
               <input type="text"
                 class="card__title-input"
                 v-model="editedMassage"
-                v-if="taskPenalStatus(item) === 'edit'"
+                v-if="item.status === 'edited'"
                 v-focus
               >
               <h3
@@ -61,18 +89,19 @@
                 {{ item.message }}
               </h3>
               <ul
-                class="card__prompt"
+                class="card__prompt card__prompt--clickable"
                 v-if="isDisplayPrompt(item)"
+                @click="switchDisplay(item)"
               >
                 <li class="card__prompt__item" v-if="item.date">
-                  <i class="far fa-calendar-alt icon mr-s"></i>
-                  {{ item.date }} {{ item.time }}
+                  <i class="far fa-calendar-alt icon mr-s" title="Deadline"></i>
+                  {{ item.date || '' }}
                 </li>
                 <li class="card__prompt__item" v-if="item.fileName">
-                  <i class="far fa-file icon"></i>
+                  <i class="far fa-file icon" title="File"></i>
                 </li>
                 <li class="card__prompt__item" v-if="item.comment">
-                  <i class="far fa-comment-dots icon"></i>
+                  <i class="far fa-comment-dots icon" title="Comment"></i>
                 </li>
               </ul>
             </div>
@@ -80,49 +109,48 @@
               <button
                 class="btn btn--icon"
                 :class="{'warning--text': item.favorite}"
-                @click="toggleFavorite(item)"
+                @click="switchFavorite(item)"
+                title="Star Favorite"
               >
-                <i class="fas fa-star icon" v-if="item.favorite"></i>
-                <i class="far fa-star icon" v-else></i>
+                <i class="fa-star icon" :class="[item.favorite? 'fas':'far']"></i>
               </button>
               <button
                 class="btn btn--icon"
-                :class="{'primary--text': editedId === item.id}"
-                @click="toggleEdited(item)"
+                :class="{'primary--text': item.status === 'edited'}"
+                @click="switchEdited(item)"
+                title="Edit"
               >
                 <i class="far fa-edit icon"></i>
               </button>
               <button
                 class="btn btn--icon"
                 @click="deleteTodo(item.id)"
-                v-if="taskPenalStatus(item) !== 'edit'"
+                v-if="item.status !== 'edited'"
+                title="Delete"
               >
                 <i class="far fa-trash-alt"></i>
               </button>
             </div>
           </div>
-          <div class="card__expansion" :ref="`exp-${item.id}`">
+          <div class="card__expansion" v-slide-toggle="item.status">
             <penal
               :message="editedMassage"
-              :status="taskPenalStatus(item)"
               :todoId="item.id"
-              @save="toggleEdited(item)"
-              @cancel="toggleEdited(item)"
             ></penal>
           </div>
         </div>
       </div>
       <div class="main__status">
-        {{ progress.length ? `${progress.length} tasks in progress` : '' }}
-        {{ progress.length && done.length ? ', ' : '' }}
-        {{ done.length ? `${done.length} tasks in completed` : '' }}
+        {{ typeOfTask === 'done' ? '' : `${progressCount} tasks in progress` }}
+        {{ typeOfTask === 'all' ? ', ' : '' }}
+        {{ typeOfTask === 'progress' ? '' : `${doneCount} tasks in completed`}}
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { slideToggle } from '@/shared/util';
+import { slideToggle, isEmpty } from '@/shared/util';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
@@ -130,10 +158,9 @@ export default {
   data() {
     return {
       message: '',
-      addPenalStatus: 'close',
-      editedId: null,
       editedMassage: '',
-      displayId: null,
+      typeOfTask: 'all', // 類型有 'all' & 'progress' & 'done'
+      isSortBy: false,
     };
   },
   computed: {
@@ -141,19 +168,54 @@ export default {
       'todos',
       'progress',
       'done',
+      'progressCount',
+      'doneCount',
+      'addPenalStatus',
     ]),
+
+    mainTasks() {
+      let tasks = [];
+
+      if (this.typeOfTask === 'progress') {
+        tasks = this.progress;
+      }
+      if (this.typeOfTask === 'done') {
+        tasks = this.done;
+      }
+      if (this.typeOfTask === 'all') {
+        tasks = this.todos;
+      }
+
+      // 降冪排序
+      if (this.isSortBy) {
+        tasks = [...tasks].sort((a, b) => a.favorite < b.favorite);
+      }
+      return tasks;
+    },
   },
   mounted() {
     this.initialData();
   },
+  watch: {
+    typeOfTask() {
+      this.mainTasks.forEach((item) => {
+        if (item.status !== 'closed') {
+          this.updateStatus([item.id, 'closed']);
+        }
+      });
+    },
+  },
+
   methods: {
     ...mapMutations([
-      'updateTodo',
-      'deleteTodo',
+      'setAddPenalStatus',
     ]),
     ...mapActions([
-      'addTodo',
       'initialData',
+      'addTodo',
+      'updateTodo',
+      'updateStatus',
+      'deleteTodo',
     ]),
 
     addTask(message) {
@@ -162,82 +224,66 @@ export default {
       this.message = '';
     },
 
-    toggleOptions() {
-      const moreEl = document.querySelector('#more-options');
-
-      // 準備展開動畫時
-      if (!moreEl.classList.contains('is-expanded')) {
-        this.addPenalStatus = 'add';
+    switchAddPenal(status) {
+      if (status === 'closed') {
+        this.setAddPenalStatus('add');
+      } else {
+        this.setAddPenalStatus('closed');
       }
-
-      slideToggle(moreEl, 'is-expanded').then((height) => {
-        // 摺疊動畫結束時
-        if (height === 0) {
-          this.addPenalStatus = 'close';
-        }
-      });
-    },
-
-    penalSave() {
-      this.toggleOptions();
-      this.message = '';
-    },
-
-    penalCancel() {
-      this.toggleOptions();
     },
 
     isDisplayPrompt(item) {
       if (item.completed) return false;
       if (!item.date && !item.fileName && !item.comment) return false;
-      if (this.taskPenalStatus(item) === 'display' || this.taskPenalStatus(item) === 'edit') return false;
+      if (item.status === 'edited') return false;
       return true;
     },
 
-    changeCheckStatus(item) {
+    switchCheckStatus(item) {
       this.updateTodo({
         id: item.id,
         completed: !item.completed,
       });
+
+      if (item.status === 'display') {
+        this.updateStatus([item.id, 'closed']);
+      }
     },
 
-    toggleFavorite(item) {
+    switchFavorite(item) {
       this.updateTodo({
         id: item.id,
         favorite: !item.favorite,
       });
     },
 
-    toggleEdited(item) {
-      const expEl = this.$refs[`exp-${item.id}`][0];
-
-      // 準備展開動畫時
-      if (!expEl.classList.contains('is-expanded')) {
-        this.displayId = item.id;
-        this.editedId = item.id;
+    switchEdited(item) {
+      if (item.status === 'closed' || item.status === 'display') {
         this.editedMassage = item.message;
+        this.updateStatus([item.id, 'edited']);
+      } else {
+        this.updateStatus([item.id, 'closed']);
       }
+    },
 
-      slideToggle(expEl, 'is-expanded').then((height) => {
-        // 摺疊動畫結束時
-        if (height === 0) {
-          this.displayId = null;
-          this.editedId = null;
-          this.editedMassage = '';
-        }
+    switchDisplay(item) {
+      if (item.status === 'closed') {
+        this.updateStatus([item.id, 'display']);
+      } else {
+        this.updateStatus([item.id, 'closed']);
+      }
+    },
+
+    changeAllCheck(tasks) {
+      tasks.forEach((item) => {
+        this.switchCheckStatus(item);
       });
     },
 
-    cardClass(item) {
-      return {
-        'card--expanded': this.taskPenalStatus(item) === 'display' || this.taskPenalStatus(item) === 'edit',
-      };
-    },
-
-    taskPenalStatus(item) {
-      if (this.editedId === item.id) return 'edit';
-      if (this.displayId === item.id) return 'display';
-      return 'close';
+    deleteAll(tasks) {
+      tasks.forEach((item) => {
+        this.deleteTodo(item.id);
+      });
     },
   },
 
@@ -246,6 +292,21 @@ export default {
       inserted(el) {
         el.focus();
       },
+    },
+    slideToggle: {
+      update(el, binding) {
+        if (binding.value === binding.oldValue) return;
+        if (binding.value === 'edited' && binding.oldValue === 'display') return;
+
+        slideToggle(el, 'is-expanded');
+      },
+    },
+    emptyAdd(el, binding) {
+      if (!binding.value || isEmpty(binding.value)) {
+        el.setAttribute(binding.arg, '');
+      } else {
+        el.removeAttribute(binding.arg);
+      }
     },
   },
 };
@@ -257,8 +318,6 @@ export default {
   margin-bottom: $spacing-xl;
 
   &__tasks {
-    margin-top: $spacing-l;
-
     .card:not(:last-child) {
       margin-bottom: $spacing;
     }
@@ -270,6 +329,28 @@ export default {
     font-style: italic;
     line-height: $line-height-l;
     color: $color-text-lighter;
+  }
+
+  &__options {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: $spacing;
+    margin-bottom: $spacing;
+
+    .icon.fa-sort {
+      margin-left: $spacing-s;
+    }
+    .checkbox {
+      font-size: $font-size-m;
+    }
+  }
+
+  &__sort-tag {
+    margin-bottom: $spacing;
+    margin-left: $spacing-l;
+    color: $color-text-light;
+    font-weight: bold;
   }
 }
 

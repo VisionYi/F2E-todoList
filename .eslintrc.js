@@ -17,5 +17,7 @@ module.exports = {
     'max-len': 'off',
     // 解除在 function 中可以直接賦予或改變參數的值
     'no-param-reassign': 'off',
+    // 可以使用 底線的變數
+    'no-underscore-dangle': 'off',
   },
 }

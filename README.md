@@ -19,6 +19,18 @@
 
 - **狀態類型的或可搭配 JS 來顯示的 CSS 樣式**，這種類型的需要特別獨立出來，可以加上 prefix 字樣 `js-*`，最後都會改由 JS 來控制，好處是可一統管理顯示與隱藏的狀態變化
 
+
 ## JS 功能的筆記學習
 - 狀態管理很重要，可以藉由狀態資訊改變各種 CSS 樣式 & DOM 顯示隱藏
+
 - vuex store 中的 actions 都需要事先加上初始化的方法，以防需要使用 API 後端資料時，資料結構會與前端差很多
+
+- vue directives 的使用方式
+
+- 使用以下方法應用在 vue data 資料時，需要避免 vue 無限循環觀察 (observer) data 的變化，尤其使用在 v-for 更需要如此
+  - 陣列函數中自身會變異的方法
+    - `Array.prototype.reverse`
+    - `Array.prototype.sort`
+  - 必須先把 data 淺拷貝成原始的 Array 型態，脫離 vue 的綁定觀察
+  - 使用賦值解構拷貝成新的資料 `[...this.items]`，再放入 computed 裡讓 vue 繼續觀察變動
+  - 參考: [Vuejs v-for infinite update loop using reverse() or sort()](https://stackoverflow.com/questions/49467217/vuejs-v-for-infinite-update-loop-using-array-prototype-reverse)
