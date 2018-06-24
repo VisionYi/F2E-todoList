@@ -94,8 +94,8 @@
                 @click="switchDisplay(item)"
               >
                 <li class="card__prompt__item" v-if="item.date">
-                  <i class="far fa-calendar-alt icon mr-s" title="Deadline"></i>
-                  {{ item.date || '' }}
+                  <i class="far fa-calendar-alt icon" :class="{'mr-s': innerWidth > 540}" title="Deadline"></i>
+                  {{ innerWidth > 540 ? (item.date || '') : '' }}
                 </li>
                 <li class="card__prompt__item" v-if="item.fileName">
                   <i class="far fa-file icon" title="File"></i>
@@ -142,7 +142,7 @@
       </div>
       <div class="main__status">
         {{ typeOfTask === 'done' ? '' : `${progressCount} tasks in progress` }}
-        {{ typeOfTask === 'all' ? ', ' : '' }}
+        <br v-if="typeOfTask === 'all'">
         {{ typeOfTask === 'progress' ? '' : `${doneCount} tasks in completed`}}
       </div>
     </div>
@@ -161,6 +161,7 @@ export default {
       editedMassage: '',
       typeOfTask: 'all', // 類型有 'all' & 'progress' & 'done'
       isSortBy: false,
+      innerWidth: window.innerWidth,
     };
   },
   computed: {
@@ -329,6 +330,10 @@ export default {
     font-style: italic;
     line-height: $line-height-l;
     color: $color-text-lighter;
+
+    @media (max-width: 540px) {
+      padding-left: $spacing-m;
+    }
   }
 
   &__options {

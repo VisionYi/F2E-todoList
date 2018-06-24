@@ -78,6 +78,10 @@ export default {
     align-items: center;
     height: 100%;
     width: 100%;
+
+    @media (max-width: 540px) {
+      padding: 0;
+    }
   }
 
   &__tabs {
@@ -108,7 +112,7 @@ export default {
       }
 
       &:hover {
-        background-color: rgba($color: #fff, $alpha: 0.1);;
+        color:#fff;
       }
 
       @media (max-width: 540px) {
