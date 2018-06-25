@@ -199,11 +199,11 @@ export default {
   },
   watch: {
     typeOfTask() {
-      this.mainTasks.forEach((item) => {
-        if (item.status !== 'closed') {
-          this.updateStatus([item.id, 'closed']);
-        }
-      });
+      this.findTaskToClosePenal();
+
+      if (this.addPenalStatus !== 'closed') {
+        this.setAddPenalStatus('closed');
+      }
     },
   },
 
@@ -260,6 +260,7 @@ export default {
 
     switchEdited(item) {
       if (item.status === 'closed' || item.status === 'display') {
+        this.findTaskToClosePenal();
         this.editedMassage = item.message;
         this.updateStatus([item.id, 'edited']);
       } else {
@@ -269,6 +270,7 @@ export default {
 
     switchDisplay(item) {
       if (item.status === 'closed') {
+        this.findTaskToClosePenal();
         this.updateStatus([item.id, 'display']);
       } else {
         this.updateStatus([item.id, 'closed']);
@@ -285,6 +287,13 @@ export default {
       tasks.forEach((item) => {
         this.deleteTodo(item.id);
       });
+    },
+
+    findTaskToClosePenal() {
+      const task = this.mainTasks.find(item => item.status !== 'closed');
+      if (task) {
+        this.updateStatus([task.id, 'closed']);
+      }
     },
   },
 
