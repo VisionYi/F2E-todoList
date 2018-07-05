@@ -1,9 +1,13 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { getRandomId } from '@/shared/util';
+import { getRandomId, local } from '@/shared/util';
 import moment from 'moment';
 
 Vue.use(Vuex);
+
+function setLocalTodo(data) {
+  local.setData('todo-data', data);
+}
 
 export default new Vuex.Store({
   state: {
@@ -25,7 +29,7 @@ export default new Vuex.Store({
 
   actions: {
     initialData({ commit }) {
-      let data = [
+      const defaultData = [
         {
           id: '1',
           message: '新增第一筆 Task',
@@ -40,8 +44,8 @@ export default new Vuex.Store({
           message: '這是完成的 Task',
           completed: true,
           favorite: false,
-          deadline: null,
-          fileName: null,
+          deadline: '',
+          fileName: '',
           comment: 'NO!!',
         },
         {
@@ -49,18 +53,20 @@ export default new Vuex.Store({
           message: 'Try to add a Task!',
           completed: false,
           favorite: true,
-          deadline: null,
-          fileName: null,
-          comment: null,
+          deadline: '',
+          fileName: '',
+          comment: '',
         },
       ];
 
+      let data = local.getData('todo-data', Object) || defaultData;
+
       data = data.map((item) => {
-        const date = item.deadline ? moment.unix(item.deadline).format('YYYY-MM-DD') : null;
+        const date = item.deadline ? moment.unix(item.deadline).format('YYYY-MM-DD') : '';
         const time =
           item.deadline &&
           moment.unix(item.deadline).get('hour') &&
-          moment.unix(item.deadline).get('minutes') ? moment.unix(item.deadline).format('HH:mm') : null;
+          moment.unix(item.deadline).get('minutes') ? moment.unix(item.deadline).format('HH:mm') : '';
         return {
           ...item, date, time, status: 'closed',
         };
@@ -69,31 +75,37 @@ export default new Vuex.Store({
       commit('setTodos', data);
     },
 
-    addTodo({ commit }, data) {
+    addTodo({ commit, state }, data) {
+      const deadline = (data.date || data.time) ? moment(`${data.date} ${data.time}`).unix() : '';
       const todo = {
         id: getRandomId(),
         message: data.message || data,
         completed: false,
         favorite: false,
-        date: data.date || null,
-        time: data.time || null,
-        fileName: data.fileName || null,
-        comment: data.comment || null,
+        deadline,
+        date: data.date || '',
+        time: data.time || '',
+        fileName: data.fileName || '',
+        comment: data.comment || '',
         status: 'closed',
       };
 
       commit('unshiftTodo', todo);
+      setLocalTodo(state.todos);
     },
 
-    updateTodo({ commit }, { id, ...data }) {
+    updateTodo({ commit, state }, { id, ...data }) {
       commit('updateTodo', { id, ...data });
+      setLocalTodo(state.todos);
     },
-    updateStatus({ commit }, [id, status]) {
+    updateStatus({ commit, state }, [id, status]) {
       // 狀態有 'display'、'edited'、'closed'
       commit('updateTodo', { id, status });
+      setLocalTodo(state.todos);
     },
-    deleteTodo({ commit }, id) {
+    deleteTodo({ commit, state }, id) {
       commit('deleteTodo', id);
+      setLocalTodo(state.todos);
     },
   },
 

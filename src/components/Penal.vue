@@ -31,7 +31,7 @@
           <i class="far fa-comment-dots icon mr-s"></i>Comment
         </label>
         <div class="penal__item__content">
-          <p class="penal__item__display" v-if="isShowDisplay">{{ comment }}</p>
+          <p class="penal__item__display" v-if="isShowDisplay" v-html="comment"></p>
           <textarea class="input" v-model="comment" v-if="isShowEdited"></textarea>
         </div>
       </li>
@@ -51,6 +51,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { escapeHTML } from '@/shared/util';
 
 export default {
   name: 'Penal',
@@ -127,7 +128,8 @@ export default {
         this.date = todoData.date || null;
         this.time = todoData.time || null;
         this.fileName = todoData.fileName || null;
-        this.comment = todoData.comment || null;
+        // 特殊符號先轉 HTML 專用本文碼，再加上換行字元 <br>
+        this.comment = escapeHTML(todoData.comment).replace(/\r?\n/g, '<br>') || null;
         this.isShowDisplay = true;
         this.isShowEdited = false;
       }

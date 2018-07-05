@@ -259,6 +259,7 @@
   &__title {
     font-size: $font-size-l;
     line-height: $line-height-l;
+    cursor: pointer;
 
     &--completed {
       margin-bottom: 0;
@@ -418,6 +419,24 @@
     .penal {
       border: 2px solid $color-line;
       border-top: 0;
+    }
+  }
+}
+
+.author-footer {
+  text-align: center;
+  color: #bbb;
+  margin: 1rem auto;
+
+  &-pen {
+    margin-right: 0.25rem;
+  }
+  &-link {
+    color: #bbb;
+    margin-left: 0.25rem;
+
+    &:hover {
+      color: $color-primary;
     }
   }
 }

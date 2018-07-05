@@ -2,6 +2,7 @@ export function getRandomId(number = 5) {
   return Math.random().toString(36).substr(2, number);
 }
 
+// 可放入陣列或物件
 export function isEmpty(obj) {
   if (obj === undefined || obj === null) return true;
 
@@ -11,6 +12,41 @@ export function isEmpty(obj) {
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
+
+// 將字串中一些特殊符號轉成 HTML 本文字串碼
+export function escapeHTML(str) {
+  return str.replace(
+    /[&<>'"]/g,
+    tag =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;',
+      }[tag] || tag),
+  );
+}
+
+// localStorage 專用函數
+export const local = {
+  getData(key, type = '') {
+    if (type === Object) {
+      return JSON.parse(window.localStorage.getItem(key));
+    }
+    return window.localStorage.getItem(key);
+  },
+  setData(key, data) {
+    if (typeof data === 'object') {
+      window.localStorage.setItem(key, JSON.stringify(data));
+    } else {
+      window.localStorage.setItem(key, data);
+    }
+  },
+  removeData(key) {
+    window.localStorage.removeItem(key);
+  },
+};
 
 /**
  * - 可擴展或可折疊，前提是指定元素的 transition 需要事先設定好，

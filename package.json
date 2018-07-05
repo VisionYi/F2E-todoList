@@ -1,12 +1,12 @@
 {
-  "name": "week-1-todolist",
+  "name": "f2e-todolist",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "serve-api": "json-server ./src/api/index.js --delay 200"
+    "deploy": "gh-pages -d dist -m \"Auto-generated update\""
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -19,7 +19,7 @@
     "@vue/cli-plugin-eslint": "^3.0.0-rc.3",
     "@vue/cli-service": "^3.0.0-rc.3",
     "@vue/eslint-config-airbnb": "^3.0.0-rc.3",
-    "json-server": "^0.14.0",
+    "gh-pages": "^1.2.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "vue-template-compiler": "^2.5.16"

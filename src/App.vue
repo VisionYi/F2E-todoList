@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <navbar v-model="typeOfTask"></navbar>
-    <div class="container main">
+    <main class="container main">
       <div
         class="add-task"
         :class="{'add-task--expanded': addPenalStatus === 'add'}"
@@ -84,6 +84,7 @@
               <h3
                 class="card__title"
                 :class="{'card__title--completed': item.completed}"
+                @click="switchCheckStatus(item)"
                 v-else
               >
                 {{ item.message }}
@@ -145,6 +146,13 @@
         <br v-if="typeOfTask === 'all'">
         {{ typeOfTask === 'progress' ? '' : `${doneCount} tasks in completed`}}
       </div>
+    </main>
+    <div class="author-footer">
+      <i class="fas fa-pen-square author-footer-pen"></i>
+      - Created by Visionyi
+      <a class="author-footer-link" href="https://github.com/VisionYi/F2E-product-gallery">
+        <i class="fas fa-code"></i>
+      </a>
     </div>
   </div>
 </template>
