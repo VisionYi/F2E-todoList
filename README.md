@@ -4,7 +4,7 @@
 - [線上設計稿](https://bit.ly/2HfaR2M)
 
 ## 專案使用的技術
-- Vue
+- Vue、Vuex
 - SCSS
 - LocalStorage
 - 完全手刻切版
@@ -25,4 +25,4 @@ npm run deploy
 ```
 
 ## 學習筆記 & 心得
-這裡放置在我的部落格文章中: [The F2E 挑戰之學習筆記 - TodoList]()
+這裡放置在我的部落格文章中: [The F2E 挑戰之學習筆記 - TodoList](https://visionyi.github.io/2018/06/28/The-F2E-TodoList/)

@@ -150,7 +150,7 @@
     <div class="author-footer">
       <i class="fas fa-pen-square author-footer-pen"></i>
       - Created by Visionyi
-      <a class="author-footer-link" href="https://github.com/VisionYi/F2E-product-gallery">
+      <a class="author-footer-link" href="https://github.com/VisionYi/F2E-todoList" title="source code">
         <i class="fas fa-code"></i>
       </a>
     </div>
