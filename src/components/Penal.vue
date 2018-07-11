@@ -8,8 +8,8 @@
         <div class="penal__item__content">
           <p class="penal__item__display" v-if="isShowDisplay">{{ date }} {{ time || '' }}</p>
           <div v-if="isShowEdited">
-            <input type="date" class="input mr-s mb-s" v-model="date">
-            <input type="time" class="input" v-model="time">
+            <input type="date" v-model="date" class="input mr-s mb-s">
+            <input type="time" v-model="time" class="input">
           </div>
         </div>
       </li>
@@ -32,7 +32,7 @@
         </label>
         <div class="penal__item__content">
           <p class="penal__item__display" v-if="isShowDisplay" v-html="comment"></p>
-          <textarea class="input" v-model="comment" v-if="isShowEdited"></textarea>
+          <textarea class="input" v-if="isShowEdited" v-model="comment"></textarea>
         </div>
       </li>
     </ul>
@@ -65,6 +65,7 @@ export default {
       default: null,
     },
   },
+
   data() {
     return {
       date: '',
@@ -92,12 +93,7 @@ export default {
       };
     },
     status() {
-      // todo task status
-      if (this.todoId) {
-        return this.getStatusById(this.todoId);
-      }
-      // add task status
-      return this.addPenalStatus;
+      return this.todoId ? this.getStatusById(this.todoId) : this.addPenalStatus;
     },
   },
 

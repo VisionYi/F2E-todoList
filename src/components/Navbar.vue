@@ -6,7 +6,7 @@
           v-for="tab in navbarTabs"
           :key="tab.id"
           class="navbar__tabs__item"
-          :class="{ 'is-active': _tabId === tab.id }"
+          :class="{ 'is-active': $_tabId === tab.id }"
           @click="selectTab(tab)"
         >
           {{ tab.text }}
@@ -19,12 +19,12 @@
 <script>
 export default {
   name: 'Navbar',
-  props: {
-    tabId: [String, Number, null],
-  },
   model: {
     event: 'changeTab',
     prop: 'tabId',
+  },
+  props: {
+    tabId: [String, Number, null],
   },
 
   data() {
@@ -46,7 +46,7 @@ export default {
     };
   },
   computed: {
-    _tabId: {
+    $_tabId: {
       get() {
         return this.tabId;
       },
@@ -58,7 +58,7 @@ export default {
 
   methods: {
     selectTab(tab) {
-      this._tabId = tab.id;
+      this.$_tabId = tab.id;
     },
   },
 };

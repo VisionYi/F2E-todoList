@@ -1,38 +1,35 @@
 <template>
   <div id="app">
-    <navbar v-model="typeOfTask"></navbar>
+    <c-navbar v-model="typeOfTask"></c-navbar>
     <main class="container main">
       <div
+        v-if="typeOfTask !== 'done'"
         class="add-task"
         :class="{'add-task--expanded': addPenalStatus === 'add'}"
-        v-if="typeOfTask !== 'done'"
       >
         <span class="add-task__add"><i class="fas fa-plus icon"></i></span>
         <input
           type="text"
+          v-model.trim="message"
           class="input"
           placeholder="Add Task"
-          v-model.trim="message"
           @keyup.enter="addTask(message)"
         >
         <button
           class="btn btn--icon add-task__more"
           :class="{'primary--text': addPenalStatus === 'add'}"
-          @click="switchAddPenal(addPenalStatus)"
           title="More Options"
+          @click="switchAddPenal(addPenalStatus)"
         >
           <i class="fas fa-ellipsis-v icon"></i>
         </button>
       </div>
       <div
-        class="add-task__expansion"
-        v-slide-toggle="addPenalStatus"
         v-if="typeOfTask !== 'done'"
+        v-slide-toggle="addPenalStatus"
+        class="add-task__expansion"
       >
-        <penal
-          :message="message"
-          @save="message = ''"
-        ></penal>
+        <c-penal :message="message" @save="message = ''"></c-penal>
       </div>
       <div class="main__options">
         <div class="checkbox mr-b" role="checkbox">
@@ -40,17 +37,17 @@
           <label for="sort">Sort By Favorite</label>
         </div>
         <button
-          class="btn btn--primary mr-b"
           v-if="typeOfTask !== 'all'"
-          @click="changeAllCheck(mainTasks)"
           v-empty-add:disabled="mainTasks"
+          class="btn btn--primary mr-b"
+          @click="changeAllCheck(mainTasks)"
         >
           {{ typeOfTask === 'progress' ? 'Check' : 'Uncheck' }} All
         </button>
         <button
+          v-empty-add:disabled="mainTasks"
           class="btn btn--danger"
           @click="deleteAll(mainTasks)"
-          v-empty-add:disabled="mainTasks"
         >
           Delete All
         </button>
@@ -64,34 +61,31 @@
         >
           <div class="card__header" :class="{'spacial': item.favorite}">
             <div class="checkbox" role="checkbox" v-if="item.status !== 'edited'">
-              <input
-                type="checkbox"
+              <input type="checkbox"
                 :id="`checkbox-${item.id}`"
                 :checked="item.completed"
                 @change="switchCheckStatus(item)"
               >
               <label :for="`checkbox-${item.id}`"></label>
             </div>
-            <div class="card__content"
-              :class="{'card__content--edited': item.status === 'edited'}"
-            >
+            <div class="card__content" :class="{'card__content--edited': item.status === 'edited'}">
               <input type="text"
-                class="card__title-input"
-                v-model="editedMassage"
                 v-if="item.status === 'edited'"
+                v-model="editedMassage"
                 v-focus
+                class="card__title-input"
               >
               <h3
+                v-else
                 class="card__title"
                 :class="{'card__title--completed': item.completed}"
                 @click="switchCheckStatus(item)"
-                v-else
               >
                 {{ item.message }}
               </h3>
               <ul
-                class="card__prompt card__prompt--clickable"
                 v-if="isDisplayPrompt(item)"
+                class="card__prompt card__prompt--clickable"
                 @click="switchDisplay(item)"
               >
                 <li class="card__prompt__item" v-if="item.date">
@@ -110,34 +104,31 @@
               <button
                 class="btn btn--icon"
                 :class="{'warning--text': item.favorite}"
-                @click="switchFavorite(item)"
                 title="Star Favorite"
+                @click="switchFavorite(item)"
               >
-                <i class="fa-star icon" :class="[item.favorite? 'fas':'far']"></i>
+                <i class="fa-star icon" :class="[item.favorite ? 'fas':'far']"></i>
               </button>
               <button
                 class="btn btn--icon"
                 :class="{'primary--text': item.status === 'edited'}"
-                @click="switchEdited(item)"
                 title="Edit"
+                @click="switchEdited(item)"
               >
                 <i class="far fa-edit icon"></i>
               </button>
               <button
-                class="btn btn--icon"
-                @click="deleteTodo(item.id)"
                 v-if="item.status !== 'edited'"
+                class="btn btn--icon"
                 title="Delete"
+                @click="deleteTodo(item.id)"
               >
                 <i class="far fa-trash-alt"></i>
               </button>
             </div>
           </div>
           <div class="card__expansion" v-slide-toggle="item.status">
-            <penal
-              :message="editedMassage"
-              :todoId="item.id"
-            ></penal>
+            <c-penal :message="editedMassage" :todoId="item.id"></c-penal>
           </div>
         </div>
       </div>
@@ -163,6 +154,32 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'App',
+  directives: {
+    // 當元素被插入 DOM 節點時，元素會觸發 focus()
+    focus: {
+      inserted(el) {
+        el.focus();
+      },
+    },
+    // 使元素隨著 binding.value 資料而改變，可以自動擴展或折疊
+    slideToggle: {
+      update(el, binding) {
+        if (binding.value === binding.oldValue) return;
+        if (binding.value === 'edited' && binding.oldValue === 'display') return;
+
+        slideToggle(el, 'is-expanded');
+      },
+    },
+    // 檢測 binding.value 資料內容為空的時候，為此元素加上 binding.arg 屬性，反之的話就移除屬性
+    emptyAdd(el, binding) {
+      if (!binding.value || isEmpty(binding.value)) {
+        el.setAttribute(binding.arg, '');
+      } else {
+        el.removeAttribute(binding.arg);
+      }
+    },
+  },
+
   data() {
     return {
       message: '',
@@ -201,10 +218,17 @@ export default {
       }
       return tasks;
     },
+
+    isDisplayPrompt() {
+      return (item) => {
+        if (item.completed) return false;
+        if (!item.date && !item.fileName && !item.comment) return false;
+        if (item.status === 'edited') return false;
+        return true;
+      };
+    },
   },
-  mounted() {
-    this.initialData();
-  },
+
   watch: {
     typeOfTask() {
       this.findTaskToClosePenal();
@@ -213,6 +237,9 @@ export default {
         this.setAddPenalStatus('closed');
       }
     },
+  },
+  mounted() {
+    this.initialData();
   },
 
   methods: {
@@ -239,13 +266,6 @@ export default {
       } else {
         this.setAddPenalStatus('closed');
       }
-    },
-
-    isDisplayPrompt(item) {
-      if (item.completed) return false;
-      if (!item.date && !item.fileName && !item.comment) return false;
-      if (item.status === 'edited') return false;
-      return true;
     },
 
     switchCheckStatus(item) {
@@ -304,29 +324,6 @@ export default {
       }
     },
   },
-
-  directives: {
-    focus: {
-      inserted(el) {
-        el.focus();
-      },
-    },
-    slideToggle: {
-      update(el, binding) {
-        if (binding.value === binding.oldValue) return;
-        if (binding.value === 'edited' && binding.oldValue === 'display') return;
-
-        slideToggle(el, 'is-expanded');
-      },
-    },
-    emptyAdd(el, binding) {
-      if (!binding.value || isEmpty(binding.value)) {
-        el.setAttribute(binding.arg, '');
-      } else {
-        el.removeAttribute(binding.arg);
-      }
-    },
-  },
 };
 </script>
 
@@ -366,13 +363,6 @@ export default {
     .checkbox {
       font-size: $font-size-m;
     }
-  }
-
-  &__sort-tag {
-    margin-bottom: $spacing;
-    margin-left: $spacing-l;
-    color: $color-text-light;
-    font-weight: bold;
   }
 }
 
